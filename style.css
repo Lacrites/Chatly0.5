@@ -1,0 +1,36 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+input {
+  padding: 6px;
+  margin: 4px;
+}
+
+button {
+  margin: 4px;
+  padding: 6px 10px;
+}
+
+#messages {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 10px 0;
+  height: 200px;
+  overflow-y: scroll;
+  background: #f9f9f9;
+}
+
+/* Efecto zumbido */
+@keyframes shake {
+  0% { transform: translate(2px, 2px); }
+  25% { transform: translate(-2px, 2px); }
+  50% { transform: translate(2px, -2px); }
+  75% { transform: translate(-2px, -2px); }
+  100% { transform: translate(0, 0); }
+}
+
+.shake {
+  animation: shake 0.3s;
+}

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chatly v1.5</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="start-section">
+    <h1>Bienvenido a Chatly</h1>
+    <input id="myId" placeholder="Tu ID" />
+    <input id="myName" placeholder="Tu nombre" />
+    <button onclick="start()">Comenzar</button>
+  </div>
+
+  <div id="chat-section" style="display: none;">
+    <p><strong>Tu ID:</strong> <span id="peer-id"></span></p>
+    <input id="connectId" placeholder="ID del otro usuario" />
+    <button onclick="connect()">Conectar</button>
+
+    <div id="messages" class="messages"></div>
+    <input id="message" placeholder="Escribí tu mensaje" />
+    <button onclick="sendMessage()">Enviar mensaje</button>
+    <button onclick="sendBuzz()">🔔 Enviar zumbido</button>
+    <button onclick="capturePhoto()">📷 Enviar foto</button>
+    <button onclick="enableCamera()">🎥 Enfocar momento</button>
+    <video id="video" autoplay playsinline style="display: none;"></video>
+    <canvas id="canvas" style="display: none;"></canvas>
+  </div>
+
+  <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
