@@ -3,6 +3,8 @@ let conn;
 let myName = "";
 let remoteName = "Desconocido";
 let cameraStream = null;
+let myLocation = null;
+let remoteLocation = null;
 
 function start() {
   const myId = document.getElementById('myId').value;
@@ -38,7 +40,7 @@ function connect() {
     return;
   }
 
-  conn = peer.connect(otherId); // No hace falta 'serialization: binary' si se serializa manualmente
+  conn = peer.connect(otherId);
   conn.on('open', () => {
     conn.send({ type: "name", value: myName });
   });
@@ -46,8 +48,6 @@ function connect() {
 }
 
 function setupConnection() {
-  if (!conn) return;
-
   conn.on('data', data => {
     if (data.type === "name") {
       remoteName = data.value;
@@ -56,21 +56,16 @@ function setupConnection() {
     } else if (data.type === "buzz") {
       triggerBuzz();
     } else if (data.type === "img") {
-      const uint8Array = new Uint8Array(data.value);
-      const buffer = uint8Array.buffer;
-      showImage(buffer, remoteName);
-    } else {
-      console.warn("Tipo de dato no reconocido:", data);
+      showImage(data.value, remoteName);
+    } else if (data.type === "location") {
+      remoteLocation = data.value;
+      addMessage(`📍 ${remoteName} envió su ubicación.`);
+      checkDistance();
     }
   });
 
   conn.on('open', () => {
     conn.send({ type: "name", value: myName });
-  });
-
-  conn.on('error', err => {
-    console.error("Error de conexión:", err);
-    alert("Hubo un error en la conexión.");
   });
 }
 
@@ -124,8 +119,7 @@ function capturePhoto() {
 
   canvas.toBlob(blob => {
     blob.arrayBuffer().then(buffer => {
-      const byteArray = Array.from(new Uint8Array(buffer));
-      conn.send({ type: "img", value: byteArray });
+      conn.send({ type: "img", value: buffer });
       showImage(buffer, `Yo (${myName})`);
     });
   }, 'image/jpeg');
@@ -160,4 +154,46 @@ function triggerBuzz() {
   chatSection.classList.add('shake');
   if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
   setTimeout(() => chatSection.classList.remove('shake'), 300);
+}
+
+function sendLocation() {
+  if (!conn) return;
+
+  if (!navigator.geolocation) {
+    alert("Tu navegador no soporta geolocalización.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(position => {
+    const coords = {
+      lat: position.coords.latitude,
+      lon: position.coords.longitude
+    };
+    myLocation = coords;
+    conn.send({ type: "location", value: coords });
+    addMessage(`📍 Ubicación enviada.`);
+    checkDistance();
+  }, err => {
+    console.error("Error al obtener ubicación", err);
+    alert("No se pudo obtener la ubicación.");
+  });
+}
+
+function checkDistance() {
+  if (myLocation && remoteLocation) {
+    const dist = haversineDistance(myLocation, remoteLocation);
+    addMessage(`📏 Distancia entre ambos: ${dist.toFixed(2)} km`);
+  }
+}
+
+function haversineDistance(loc1, loc2) {
+  const toRad = deg => deg * Math.PI / 180;
+  const R = 6371; // km
+  const dLat = toRad(loc2.lat - loc1.lat);
+  const dLon = toRad(loc2.lon - loc1.lon);
+  const a = Math.sin(dLat / 2) ** 2 +
+            Math.cos(toRad(loc1.lat)) * Math.cos(toRad(loc2.lat)) *
+            Math.sin(dLon / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
 }
