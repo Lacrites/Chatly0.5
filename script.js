@@ -38,7 +38,7 @@ function connect() {
     return;
   }
 
-  conn = peer.connect(otherId);
+  conn = peer.connect(otherId); // No hace falta 'serialization: binary' si se serializa manualmente
   conn.on('open', () => {
     conn.send({ type: "name", value: myName });
   });
@@ -46,6 +46,8 @@ function connect() {
 }
 
 function setupConnection() {
+  if (!conn) return;
+
   conn.on('data', data => {
     if (data.type === "name") {
       remoteName = data.value;
@@ -54,12 +56,21 @@ function setupConnection() {
     } else if (data.type === "buzz") {
       triggerBuzz();
     } else if (data.type === "img") {
-      showImage(data.value, remoteName);
+      const uint8Array = new Uint8Array(data.value);
+      const buffer = uint8Array.buffer;
+      showImage(buffer, remoteName);
+    } else {
+      console.warn("Tipo de dato no reconocido:", data);
     }
   });
 
   conn.on('open', () => {
     conn.send({ type: "name", value: myName });
+  });
+
+  conn.on('error', err => {
+    console.error("Error de conexión:", err);
+    alert("Hubo un error en la conexión.");
   });
 }
 
@@ -113,7 +124,8 @@ function capturePhoto() {
 
   canvas.toBlob(blob => {
     blob.arrayBuffer().then(buffer => {
-      conn.send({ type: "img", value: buffer });
+      const byteArray = Array.from(new Uint8Array(buffer));
+      conn.send({ type: "img", value: byteArray });
       showImage(buffer, `Yo (${myName})`);
     });
   }, 'image/jpeg');
