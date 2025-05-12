@@ -1,28 +1,28 @@
 body {
   font-family: Arial, sans-serif;
   padding: 20px;
-  background-color: #f4f4f4;  /* Añadí un color de fondo suave */
+  background-color: #f4f4f4;  /* Color de fondo suave */
   margin: 0;
 }
 
 input {
-  padding: 8px;  /* Un poco más de padding para mejorar la interacción */
-  margin: 8px;
+  padding: 8px;
+  margin: 8px 0;  /* Reducido margen para no dar mucho espacio vertical */
   border: 1px solid #ccc;
-  border-radius: 4px;  /* Bordes redondeados para un aspecto más moderno */
-  width: calc(100% - 16px);  /* Ocupa el 100% del contenedor con margen */
-  box-sizing: border-box;  /* Asegura que los márgenes no afecten al ancho total */
+  border-radius: 4px;
+  width: calc(100% - 16px);  /* Asegura que el input ocupe el 100% del contenedor */
+  box-sizing: border-box;
 }
 
 button {
-  margin: 8px;
+  margin: 8px 0;  /* Un poco menos de margen vertical */
   padding: 8px 12px;
   border: none;
   background-color: #007bff;
   color: white;
-  border-radius: 4px;  /* Bordes redondeados */
+  border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s ease;  /* Efecto de transición en el color */
+  transition: background-color 0.3s ease;
 }
 
 button:hover {
@@ -36,30 +36,28 @@ button:hover {
   height: 200px;
   overflow-y: auto;
   background: #ffffff;
-  border-radius: 8px;  /* Bordes redondeados */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);  /* Sombra sutil para destacarlo */
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  font-size: 14px;  /* Tamaño de fuente legible */
 }
 
-/* Estilos para el contenedor de la cámara */
 #video-container {
   width: 100%;
-  max-width: 400px;  /* Ajusta el tamaño máximo */
+  max-width: 400px;
   height: auto;
-  margin: 20px auto;  /* Añadí margen superior para separarlo un poco */
+  margin: 20px auto;
   overflow: hidden;
-  border-radius: 8px;  /* Bordes redondeados */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);  /* Sombra sutil */
-  background-color: #000;  /* Fondo negro para el área de video */
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background-color: #000;
 }
 
-/* Asegurando que el video se ajuste correctamente */
 #video {
   width: 100%;
   height: auto;
-  border-radius: 8px;  /* Bordes redondeados en el video */
+  border-radius: 8px;
 }
 
-/* Efecto zumbido */
 @keyframes shake {
   0% { transform: translate(2px, 2px); }
   25% { transform: translate(-2px, 2px); }
@@ -69,5 +67,24 @@ button:hover {
 }
 
 .shake {
-  animation: shake 0.3s;
+  animation: shake 0.3s ease-in-out;  /* Añadí ease-in-out para suavizar el movimiento */
+}
+
+/* Mejoras para dispositivos móviles */
+@media (max-width: 600px) {
+  body {
+    padding: 10px;  /* Reduce el padding para móviles */
+  }
+
+  #messages {
+    height: 150px;  /* Menor altura para mensajes en pantallas pequeñas */
+  }
+
+  #video-container {
+    max-width: 100%;  /* Asegura que el contenedor de video ocupe el 100% en móviles */
+  }
+
+  input, button {
+    width: 100%;  /* Ocupa el 100% del ancho disponible en móviles */
+  }
 }
