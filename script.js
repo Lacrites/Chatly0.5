@@ -100,33 +100,43 @@ function enableCamera(deviceId = null) {
   const container = document.getElementById('video-container');
 
   if (cameraActive) {
-    // Si la cámara ya está activa, la detenemos
-    cameraStream.getTracks().forEach(track => track.stop());
-    cameraStream = null;
-    video.srcObject = null;
-    video.style.display = 'none';
-    container.style.display = 'none';
-    cameraActive = false;  // Desactivamos la cámara
-    return;  // Salimos de la función para evitar seguir ejecutando el resto
+    // Solo si la cámara está activa, no la detenemos, solo cambiamos el dispositivo.
+    const constraints = deviceId
+      ? { video: { deviceId: { exact: deviceId }, facingMode: "environment" } }
+      : { video: { facingMode: "user" } };
+
+    navigator.mediaDevices.getUserMedia(constraints)
+      .then(stream => {
+        cameraStream.getTracks().forEach(track => track.stop()); // Detenemos los tracks antiguos
+        cameraStream = stream;
+        video.srcObject = stream;
+        video.style.display = 'block';
+        container.style.display = 'block';
+      })
+      .catch(err => {
+        console.error("No se pudo acceder a la cámara", err);
+        alert("No se pudo acceder a la cámara.");
+      });
+
+  } else {
+    // Si la cámara no está activa, la encendemos
+    const constraints = deviceId
+      ? { video: { deviceId: { exact: deviceId }, facingMode: "environment" } }
+      : { video: { facingMode: "user" } };
+
+    navigator.mediaDevices.getUserMedia(constraints)
+      .then(stream => {
+        cameraStream = stream;
+        video.srcObject = stream;
+        video.style.display = 'block';
+        container.style.display = 'block';
+        cameraActive = true;  // Activamos la cámara
+      })
+      .catch(err => {
+        console.error("No se pudo acceder a la cámara", err);
+        alert("No se pudo acceder a la cámara.");
+      });
   }
-
-  // Si la cámara no está activa, la encendemos
-  const constraints = deviceId
-    ? { video: { deviceId: { exact: deviceId }, facingMode: "environment" } }
-    : { video: { facingMode: "user" } };
-
-  navigator.mediaDevices.getUserMedia(constraints)
-    .then(stream => {
-      cameraStream = stream;
-      video.srcObject = stream;
-      video.style.display = 'block';
-      container.style.display = 'block';
-      cameraActive = true;  // Activamos la cámara
-    })
-    .catch(err => {
-      console.error("No se pudo acceder a la cámara", err);
-      alert("No se pudo acceder a la cámara.");
-    });
 }
 
 function switchCamera() {
@@ -144,7 +154,7 @@ function switchCamera() {
       currentCameraIndex = (currentIndex + 1) % mediaDevices.length;
 
       const nextDeviceId = mediaDevices[currentCameraIndex].deviceId;
-      enableCamera(nextDeviceId);
+      enableCamera(nextDeviceId); // Llamamos a enableCamera sin detenerla
     })
     .catch(err => {
       console.error("Error al enumerar dispositivos", err);
