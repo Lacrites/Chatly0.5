@@ -5,8 +5,8 @@ let remoteName = "Desconocido";
 let cameraStream = null;
 let myLocation = null;
 let remoteLocation = null;
-let currentCamera = 'user'; // 'user' para la cámara frontal, 'environment' para la cámara trasera
 let mediaDevices = [];
+let currentCameraIndex = 0;
 
 function start() {
   const myId = document.getElementById('myId').value;
@@ -92,40 +92,48 @@ function addMessage(msg) {
   msgBox.scrollTop = msgBox.scrollHeight;
 }
 
-function enableCamera() {
+function enableCamera(deviceId = null) {
   const video = document.getElementById('video');
 
   if (cameraStream) {
     cameraStream.getTracks().forEach(track => track.stop());
     cameraStream = null;
-    video.style.display = 'none';
     video.srcObject = null;
-  } else {
-    navigator.mediaDevices.enumerateDevices()
-      .then(devices => {
-        mediaDevices = devices.filter(device => device.kind === 'videoinput');
-        const constraints = {
-          video: { facingMode: currentCamera }
-        };
-        navigator.mediaDevices.getUserMedia(constraints)
-          .then(stream => {
-            cameraStream = stream;
-            video.srcObject = stream;
-            video.style.display = 'block';
-          })
-          .catch(err => {
-            console.error("No se pudo acceder a la cámara", err);
-          });
-      })
-      .catch(err => {
-        console.error("Error al obtener dispositivos de media", err);
-      });
+    video.style.display = 'none';
   }
+
+  const constraints = deviceId
+    ? { video: { deviceId: { exact: deviceId } } }
+    : { video: true };
+
+  navigator.mediaDevices.getUserMedia(constraints)
+    .then(stream => {
+      cameraStream = stream;
+      video.srcObject = stream;
+      video.style.display = 'block';
+    })
+    .catch(err => {
+      console.error("No se pudo acceder a la cámara", err);
+    });
 }
 
 function switchCamera() {
-  currentCamera = (currentCamera === 'user') ? 'environment' : 'user'; // Alterna entre cámaras
-  enableCamera(); // Vuelve a habilitar la cámara con el nuevo valor
+  navigator.mediaDevices.enumerateDevices()
+    .then(devices => {
+      mediaDevices = devices.filter(device => device.kind === 'videoinput');
+      if (mediaDevices.length === 0) {
+        alert("No se encontraron cámaras.");
+        return;
+      }
+
+      currentCameraIndex = (currentCameraIndex + 1) % mediaDevices.length;
+      const nextDeviceId = mediaDevices[currentCameraIndex].deviceId;
+
+      enableCamera(nextDeviceId);
+    })
+    .catch(err => {
+      console.error("Error al enumerar dispositivos", err);
+    });
 }
 
 function capturePhoto() {
@@ -220,23 +228,17 @@ function haversineDistance(loc1, loc2) {
 
 function disconnect() {
   if (conn) {
-    // Cerrar la conexión
     conn.close();
     conn = null;
 
-    // Mensaje de desconexión
     addMessage(`⚠️ Sistema: Desconectado.`);
-
-    // Limpiar las variables de estado
     myLocation = null;
     remoteLocation = null;
     remoteName = "Desconocido";
 
-    // Mostrar la sección de inicio y ocultar la de chat
     document.getElementById('chat-section').style.display = 'none';
     document.getElementById('start-section').style.display = 'block';
 
-    // Mensaje de espera de conexión
     addMessage(`⌛ Sistema: Esperando conexión...`);
   } else {
     alert("No hay ninguna conexión activa.");
