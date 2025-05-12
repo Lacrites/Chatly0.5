@@ -96,54 +96,46 @@ function addMessage(msg) {
 
 function enableCamera(deviceId = null) {
   const video = document.getElementById('video');
+  const container = document.getElementById('video-container');
 
   if (cameraStream) {
     cameraStream.getTracks().forEach(track => track.stop());
     cameraStream = null;
     video.srcObject = null;
     video.style.display = 'none';
+    container.style.display = 'none';
   }
 
   const constraints = deviceId
-    ? { video: { deviceId: { exact: deviceId } } }
-    : { video: true };
+    ? { video: { deviceId: { exact: deviceId }, facingMode: "environment" } }
+    : { video: { facingMode: "user" } };
 
   navigator.mediaDevices.getUserMedia(constraints)
     .then(stream => {
       cameraStream = stream;
       video.srcObject = stream;
       video.style.display = 'block';
+      container.style.display = 'block';
     })
     .catch(err => {
       console.error("No se pudo acceder a la cámara", err);
+      alert("No se pudo acceder a la cámara.");
     });
 }
 
 function switchCamera() {
   navigator.mediaDevices.enumerateDevices()
     .then(devices => {
-      // Filtramos las cámaras (videoinput)
       mediaDevices = devices.filter(device => device.kind === 'videoinput');
-      
-      if (mediaDevices.length === 0) {
-        alert("No se encontraron cámaras.");
+
+      if (mediaDevices.length < 2) {
+        alert("No hay más de una cámara disponible.");
         return;
       }
 
-      // Si ya estamos usando alguna cámara, determinamos cuál estamos usando
-      const currentDeviceId = cameraStream ? cameraStream.getTracks()[0].getSettings().deviceId : null;
-
-      // Cambiar la cámara de acuerdo a la cámara actual
-      if (currentDeviceId === mediaDevices[0].deviceId) {
-        // Si estamos usando la cámara frontal, cambiamos a la trasera
-        currentCameraIndex = mediaDevices.length > 1 ? 1 : 0;
-      } else if (currentDeviceId === mediaDevices[1]?.deviceId) {
-        // Si estamos usando la cámara trasera, cambiamos a la frontal
-        currentCameraIndex = 0;
-      } else {
-        // Si no estamos usando ninguna cámara aún o si estamos con una cámara diferente, alternamos entre ellas
-        currentCameraIndex = (currentCameraIndex + 1) % mediaDevices.length;
-      }
+      const currentDeviceId = cameraStream?.getVideoTracks()?.[0]?.getSettings()?.deviceId;
+      const currentIndex = mediaDevices.findIndex(dev => dev.deviceId === currentDeviceId);
+      currentCameraIndex = (currentIndex + 1) % mediaDevices.length;
 
       const nextDeviceId = mediaDevices[currentCameraIndex].deviceId;
       enableCamera(nextDeviceId);
@@ -160,6 +152,12 @@ function capturePhoto() {
 
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
+
+  if (canvas.width === 0 || canvas.height === 0) {
+    alert("La cámara aún no está lista. Esperá un momento e intentá de nuevo.");
+    return;
+  }
+
   context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
   canvas.toBlob(blob => {
@@ -256,6 +254,7 @@ function disconnect() {
     cameraStream = null;
     document.getElementById('video').srcObject = null;
     document.getElementById('video').style.display = 'none';
+    document.getElementById('video-container').style.display = 'none';
   }
 
   if (peer) {
