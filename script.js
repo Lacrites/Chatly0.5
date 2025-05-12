@@ -200,3 +200,16 @@ function haversineDistance(loc1, loc2) {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
+
+function disconnect() {
+  if (conn) {
+    conn.close();
+    conn = null;
+    addMessage(`⚠️ Sistema: Desconectado.`);
+    document.getElementById('chat-section').style.display = 'none';
+    document.getElementById('start-section').style.display = 'block';
+    addMessage(`⌛ Sistema: Esperando conexión...`);
+  } else {
+    alert("No hay ninguna conexión activa.");
+  }
+}
