@@ -135,8 +135,9 @@ function switchCamera() {
       const currentDeviceId = cameraStream ? cameraStream.getTracks()[0].getSettings().deviceId : null;
 
       // Determinamos el siguiente dispositivo de cámara
-      currentCameraIndex = (currentCameraIndex + 1) % mediaDevices.length;
-      const nextDeviceId = mediaDevices[currentCameraIndex].deviceId;
+      const nextDeviceId = mediaDevices.find(device => device.deviceId !== currentDeviceId)?.deviceId;
+      if (!nextDeviceId) return;
+
       enableCamera(nextDeviceId);
     })
     .catch(err => {
