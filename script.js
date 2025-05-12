@@ -104,11 +104,13 @@ function enableCamera(deviceId = null) {
     video.style.display = 'none';
   }
 
-  const constraints = deviceId
-    ? { video: { deviceId: { exact: deviceId }, facingMode: "environment" } }  // "facingMode" para la cámara trasera
-    : { video: { facingMode: "user" } };  // "user" para la cámara frontal
+  let constraints;
+  if (deviceId) {
+    constraints = { video: { deviceId: { exact: deviceId } } };
+  } else {
+    constraints = { video: { facingMode: "user" } };
+  }
 
-  // Asegurándonos de que las restricciones de video se apliquen correctamente
   navigator.mediaDevices.getUserMedia(constraints)
     .then(stream => {
       cameraStream = stream;
@@ -124,30 +126,28 @@ function switchCamera() {
   navigator.mediaDevices.enumerateDevices()
     .then(devices => {
       // Filtramos las cámaras (videoinput)
-      mediaDevices = devices.filter(device => device.kind === 'videoinput');
+      const videoDevices = devices.filter(device => device.kind === 'videoinput');
       
-      if (mediaDevices.length === 0) {
+      if (videoDevices.length === 0) {
         alert("No se encontraron cámaras.");
         return;
       }
 
-      // Si ya estamos usando alguna cámara, determinamos cuál estamos usando
-      const currentDeviceId = cameraStream ? cameraStream.getTracks()[0].getSettings().deviceId : null;
-
-      // Cambiar la cámara de acuerdo a la cámara actual
-      if (currentDeviceId === mediaDevices[0].deviceId) {
-        // Si estamos usando la cámara frontal, cambiamos a la trasera
-        currentCameraIndex = mediaDevices.length > 1 ? 1 : 0;
-      } else if (currentDeviceId === mediaDevices[1]?.deviceId) {
-        // Si estamos usando la cámara trasera, cambiamos a la frontal
+      // Si no hay stream aún, empezamos con la primera cámara
+      if (!cameraStream) {
         currentCameraIndex = 0;
-      } else {
-        // Si no estamos usando ninguna cámara aún o si estamos con una cámara diferente, alternamos entre ellas
-        currentCameraIndex = (currentCameraIndex + 1) % mediaDevices.length;
+        enableCamera(videoDevices[currentCameraIndex].deviceId);
+        return;
       }
 
-      const nextDeviceId = mediaDevices[currentCameraIndex].deviceId;
-      enableCamera(nextDeviceId);
+      const currentDeviceId = cameraStream.getVideoTracks()[0].getSettings().deviceId;
+
+      // Encontrar el índice actual
+      const index = videoDevices.findIndex(device => device.deviceId === currentDeviceId);
+      currentCameraIndex = (index + 1) % videoDevices.length;
+
+      // Cambiar a la siguiente cámara
+      enableCamera(videoDevices[currentCameraIndex].deviceId);
     })
     .catch(err => {
       console.error("Error al enumerar dispositivos", err);
