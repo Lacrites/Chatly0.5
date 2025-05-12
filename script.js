@@ -25,6 +25,7 @@ function start() {
 
   peer.on('connection', connection => {
     conn = connection;
+    addMessage(`✅ Sistema: Usuario conectado.`);
     setupConnection();
   });
 
@@ -40,6 +41,7 @@ function connect() {
     return;
   }
 
+  addMessage(`⌛ Sistema: Esperando conexión con ${otherId}...`);
   conn = peer.connect(otherId);
   conn.on('open', () => {
     conn.send({ type: "name", value: myName });
@@ -51,6 +53,7 @@ function setupConnection() {
   conn.on('data', data => {
     if (data.type === "name") {
       remoteName = data.value;
+      addMessage(`✅ Sistema: Conectado con ${remoteName}`);
     } else if (data.type === "msg") {
       addMessage(`${remoteName}: ${data.value}`);
     } else if (data.type === "buzz") {
