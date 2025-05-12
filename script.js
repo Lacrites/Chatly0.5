@@ -100,7 +100,7 @@ function enableCamera(deviceId = null) {
   const container = document.getElementById('video-container');
 
   if (cameraActive) {
-    // Si la cámara está activa, la apagamos
+    // Apagar la cámara
     cameraStream.getTracks().forEach(track => track.stop());
     cameraStream = null;
     video.srcObject = null;
@@ -108,7 +108,7 @@ function enableCamera(deviceId = null) {
     container.style.display = 'none';
     cameraActive = false;  // Desactivamos la cámara
   } else {
-    // Si la cámara no está activa, la encendemos
+    // Activar la cámara
     const constraints = deviceId
       ? { video: { deviceId: { exact: deviceId }, facingMode: "environment" } }
       : { video: { facingMode: "user" } };
@@ -132,23 +132,25 @@ function switchCamera() {
   navigator.mediaDevices.enumerateDevices()
     .then(devices => {
       mediaDevices = devices.filter(device => device.kind === 'videoinput');
-      
+
       if (mediaDevices.length < 2) {
         alert("No hay más de una cámara disponible.");
         return;
       }
 
-      // Detenemos el stream anterior para evitar conflictos
+      // Detener el stream anterior antes de cambiar a la nueva cámara
       if (cameraStream) {
         cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
       }
 
+      // Obtener el ID del dispositivo actual
       const currentDeviceId = cameraStream?.getVideoTracks()?.[0]?.getSettings()?.deviceId;
       const currentIndex = mediaDevices.findIndex(dev => dev.deviceId === currentDeviceId);
       currentCameraIndex = (currentIndex + 1) % mediaDevices.length;
 
       const nextDeviceId = mediaDevices[currentCameraIndex].deviceId;
-      enableCamera(nextDeviceId); // Llamamos a enableCamera para cambiar la cámara
+      enableCamera(nextDeviceId);  // Llamamos a enableCamera para cambiar de cámara
     })
     .catch(err => {
       console.error("Error al enumerar dispositivos", err);
@@ -267,17 +269,6 @@ function disconnect() {
     document.getElementById('video-container').style.display = 'none';
   }
 
-  if (peer) {
-    peer.destroy();
-    peer = null;
-  }
-
-  myLocation = null;
-  remoteLocation = null;
-  remoteName = "Desconocido";
-
   document.getElementById('chat-section').style.display = 'none';
   document.getElementById('start-section').style.display = 'block';
-
-  addMessage(`⌛ Sistema: Esperando conexión...`);
 }
