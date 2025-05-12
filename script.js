@@ -203,11 +203,23 @@ function haversineDistance(loc1, loc2) {
 
 function disconnect() {
   if (conn) {
+    // Cerrar la conexión
     conn.close();
     conn = null;
+
+    // Mensaje de desconexión
     addMessage(`⚠️ Sistema: Desconectado.`);
+
+    // Limpiar las variables de estado
+    myLocation = null;
+    remoteLocation = null;
+    remoteName = "Desconocido";
+
+    // Mostrar la sección de inicio y ocultar la de chat
     document.getElementById('chat-section').style.display = 'none';
     document.getElementById('start-section').style.display = 'block';
+
+    // Mensaje de espera de conexión
     addMessage(`⌛ Sistema: Esperando conexión...`);
   } else {
     alert("No hay ninguna conexión activa.");
