@@ -122,24 +122,28 @@ function enableCamera(deviceId = null) {
 function switchCamera() {
   navigator.mediaDevices.enumerateDevices()
     .then(devices => {
-      mediaDevices = devices.filter(device => 
-        device.kind === 'videoinput' && 
-        device.label.toLowerCase().includes('back') // solo cámaras traseras
-      );
-
-      // Si no encuentra cámaras traseras, usar todas las cámaras
-      if (mediaDevices.length === 0) {
-        mediaDevices = devices.filter(device => device.kind === 'videoinput');
-      }
-
+      // Filtramos las cámaras (videoinput)
+      mediaDevices = devices.filter(device => device.kind === 'videoinput');
+      
       if (mediaDevices.length === 0) {
         alert("No se encontraron cámaras.");
         return;
       }
 
-      currentCameraIndex = (currentCameraIndex + 1) % mediaDevices.length;
+      // Ahora verificamos si ya estamos usando la cámara frontal o trasera
+      // Usamos el deviceId de la cámara actual para determinar cuál es
+      const currentDeviceId = cameraStream ? cameraStream.getTracks()[0].getSettings().deviceId : null;
+      
+      // Si la cámara actual es la frontal, cambiamos a la trasera, y viceversa
+      if (currentDeviceId === mediaDevices[0].deviceId) {
+        currentCameraIndex = 1;  // Cambiar a la cámara trasera
+      } else if (currentDeviceId === mediaDevices[1]?.deviceId) {
+        currentCameraIndex = 0;  // Cambiar a la cámara frontal
+      } else {
+        currentCameraIndex = (currentCameraIndex + 1) % mediaDevices.length; // Alternar entre cámaras si hay más de dos
+      }
+      
       const nextDeviceId = mediaDevices[currentCameraIndex].deviceId;
-
       enableCamera(nextDeviceId);
     })
     .catch(err => {
