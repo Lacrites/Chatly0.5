@@ -105,9 +105,10 @@ function enableCamera(deviceId = null) {
   }
 
   const constraints = deviceId
-    ? { video: { deviceId: { exact: deviceId } } }
-    : { video: true };
+    ? { video: { deviceId: { exact: deviceId }, facingMode: "environment" } }  // "facingMode" para la cámara trasera
+    : { video: { facingMode: "user" } };  // "user" para la cámara frontal
 
+  // Asegurándonos de que las restricciones de video se apliquen correctamente
   navigator.mediaDevices.getUserMedia(constraints)
     .then(stream => {
       cameraStream = stream;
