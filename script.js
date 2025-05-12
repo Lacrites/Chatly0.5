@@ -5,6 +5,8 @@ let remoteName = "Desconocido";
 let cameraStream = null;
 let myLocation = null;
 let remoteLocation = null;
+let currentCamera = 'user'; // 'user' para la cámara frontal, 'environment' para la cámara trasera
+let mediaDevices = [];
 
 function start() {
   const myId = document.getElementById('myId').value;
@@ -99,16 +101,31 @@ function enableCamera() {
     video.style.display = 'none';
     video.srcObject = null;
   } else {
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => {
-        cameraStream = stream;
-        video.srcObject = stream;
-        video.style.display = 'block';
+    navigator.mediaDevices.enumerateDevices()
+      .then(devices => {
+        mediaDevices = devices.filter(device => device.kind === 'videoinput');
+        const constraints = {
+          video: { facingMode: currentCamera }
+        };
+        navigator.mediaDevices.getUserMedia(constraints)
+          .then(stream => {
+            cameraStream = stream;
+            video.srcObject = stream;
+            video.style.display = 'block';
+          })
+          .catch(err => {
+            console.error("No se pudo acceder a la cámara", err);
+          });
       })
       .catch(err => {
-        console.error("No se pudo acceder a la cámara", err);
+        console.error("Error al obtener dispositivos de media", err);
       });
   }
+}
+
+function switchCamera() {
+  currentCamera = (currentCamera === 'user') ? 'environment' : 'user'; // Alterna entre cámaras
+  enableCamera(); // Vuelve a habilitar la cámara con el nuevo valor
 }
 
 function capturePhoto() {
