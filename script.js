@@ -130,19 +130,21 @@ function switchCamera() {
         return;
       }
 
-      // Ahora verificamos si ya estamos usando la cámara frontal o trasera
-      // Usamos el deviceId de la cámara actual para determinar cuál es
+      // Si ya estamos usando alguna cámara, determinamos cuál estamos usando
       const currentDeviceId = cameraStream ? cameraStream.getTracks()[0].getSettings().deviceId : null;
-      
-      // Si la cámara actual es la frontal, cambiamos a la trasera, y viceversa
+
+      // Cambiar la cámara de acuerdo a la cámara actual
       if (currentDeviceId === mediaDevices[0].deviceId) {
-        currentCameraIndex = 1;  // Cambiar a la cámara trasera
+        // Si estamos usando la cámara frontal, cambiamos a la trasera
+        currentCameraIndex = mediaDevices.length > 1 ? 1 : 0;
       } else if (currentDeviceId === mediaDevices[1]?.deviceId) {
-        currentCameraIndex = 0;  // Cambiar a la cámara frontal
+        // Si estamos usando la cámara trasera, cambiamos a la frontal
+        currentCameraIndex = 0;
       } else {
-        currentCameraIndex = (currentCameraIndex + 1) % mediaDevices.length; // Alternar entre cámaras si hay más de dos
+        // Si no estamos usando ninguna cámara aún o si estamos con una cámara diferente, alternamos entre ellas
+        currentCameraIndex = (currentCameraIndex + 1) % mediaDevices.length;
       }
-      
+
       const nextDeviceId = mediaDevices[currentCameraIndex].deviceId;
       enableCamera(nextDeviceId);
     })
