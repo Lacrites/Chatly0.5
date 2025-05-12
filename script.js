@@ -97,6 +97,7 @@ function addMessage(msg) {
 function enableCamera(deviceId = null) {
   const video = document.getElementById('video');
 
+  // Detenemos todos los tracks previos si existen
   if (cameraStream) {
     cameraStream.getTracks().forEach(track => track.stop());
     cameraStream = null;
@@ -133,18 +134,8 @@ function switchCamera() {
       // Si ya estamos usando alguna cámara, determinamos cuál estamos usando
       const currentDeviceId = cameraStream ? cameraStream.getTracks()[0].getSettings().deviceId : null;
 
-      // Cambiar la cámara de acuerdo a la cámara actual
-      if (currentDeviceId === mediaDevices[0].deviceId) {
-        // Si estamos usando la cámara frontal, cambiamos a la trasera
-        currentCameraIndex = mediaDevices.length > 1 ? 1 : 0;
-      } else if (currentDeviceId === mediaDevices[1]?.deviceId) {
-        // Si estamos usando la cámara trasera, cambiamos a la frontal
-        currentCameraIndex = 0;
-      } else {
-        // Si no estamos usando ninguna cámara aún o si estamos con una cámara diferente, alternamos entre ellas
-        currentCameraIndex = (currentCameraIndex + 1) % mediaDevices.length;
-      }
-
+      // Determinamos el siguiente dispositivo de cámara
+      currentCameraIndex = (currentCameraIndex + 1) % mediaDevices.length;
       const nextDeviceId = mediaDevices[currentCameraIndex].deviceId;
       enableCamera(nextDeviceId);
     })
