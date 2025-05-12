@@ -100,24 +100,13 @@ function enableCamera(deviceId = null) {
   const container = document.getElementById('video-container');
 
   if (cameraActive) {
-    // Solo si la cámara está activa, no la detenemos, solo cambiamos el dispositivo.
-    const constraints = deviceId
-      ? { video: { deviceId: { exact: deviceId }, facingMode: "environment" } }
-      : { video: { facingMode: "user" } };
-
-    navigator.mediaDevices.getUserMedia(constraints)
-      .then(stream => {
-        cameraStream.getTracks().forEach(track => track.stop()); // Detenemos los tracks antiguos
-        cameraStream = stream;
-        video.srcObject = stream;
-        video.style.display = 'block';
-        container.style.display = 'block';
-      })
-      .catch(err => {
-        console.error("No se pudo acceder a la cámara", err);
-        alert("No se pudo acceder a la cámara.");
-      });
-
+    // Si la cámara está activa, la apagamos
+    cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+    video.srcObject = null;
+    video.style.display = 'none';
+    container.style.display = 'none';
+    cameraActive = false;  // Desactivamos la cámara
   } else {
     // Si la cámara no está activa, la encendemos
     const constraints = deviceId
@@ -143,10 +132,15 @@ function switchCamera() {
   navigator.mediaDevices.enumerateDevices()
     .then(devices => {
       mediaDevices = devices.filter(device => device.kind === 'videoinput');
-
+      
       if (mediaDevices.length < 2) {
         alert("No hay más de una cámara disponible.");
         return;
+      }
+
+      // Detenemos el stream anterior para evitar conflictos
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
       }
 
       const currentDeviceId = cameraStream?.getVideoTracks()?.[0]?.getSettings()?.deviceId;
@@ -154,7 +148,7 @@ function switchCamera() {
       currentCameraIndex = (currentIndex + 1) % mediaDevices.length;
 
       const nextDeviceId = mediaDevices[currentCameraIndex].deviceId;
-      enableCamera(nextDeviceId); // Llamamos a enableCamera sin detenerla
+      enableCamera(nextDeviceId); // Llamamos a enableCamera para cambiar la cámara
     })
     .catch(err => {
       console.error("Error al enumerar dispositivos", err);
