@@ -7,6 +7,7 @@ let myLocation = null;
 let remoteLocation = null;
 let mediaDevices = [];
 let currentCameraIndex = 0;
+let cameraActive = false;  // Nuevo estado para controlar la cámara
 
 function start() {
   const myId = document.getElementById('myId').value;
@@ -98,14 +99,18 @@ function enableCamera(deviceId = null) {
   const video = document.getElementById('video');
   const container = document.getElementById('video-container');
 
-  if (cameraStream) {
+  if (cameraActive) {
+    // Si la cámara ya está activa, la detenemos
     cameraStream.getTracks().forEach(track => track.stop());
     cameraStream = null;
     video.srcObject = null;
     video.style.display = 'none';
     container.style.display = 'none';
+    cameraActive = false;  // Desactivamos la cámara
+    return;  // Salimos de la función para evitar seguir ejecutando el resto
   }
 
+  // Si la cámara no está activa, la encendemos
   const constraints = deviceId
     ? { video: { deviceId: { exact: deviceId }, facingMode: "environment" } }
     : { video: { facingMode: "user" } };
@@ -116,6 +121,7 @@ function enableCamera(deviceId = null) {
       video.srcObject = stream;
       video.style.display = 'block';
       container.style.display = 'block';
+      cameraActive = true;  // Activamos la cámara
     })
     .catch(err => {
       console.error("No se pudo acceder a la cámara", err);
