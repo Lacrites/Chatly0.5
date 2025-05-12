@@ -62,6 +62,9 @@ function setupConnection() {
       triggerBuzz();
     } else if (data.type === "img") {
       showImage(data.value, remoteName);
+      else if (data.type === "end") {
+  addMessage(data.value);
+}
     } else if (data.type === "location") {
       remoteLocation = data.value;
       addMessage(`📍 ${remoteName} envió su ubicación.`);
@@ -227,20 +230,36 @@ function haversineDistance(loc1, loc2) {
 }
 
 function disconnect() {
-  if (conn) {
+  // Avisar al otro usuario si hay conexión activa
+  if (conn && conn.open) {
+    conn.send({ type: "end", value: "⚠️ Sistema: El chat ha sido finalizado por el otro usuario." });
     conn.close();
     conn = null;
-
     addMessage(`⚠️ Sistema: Desconectado.`);
-    myLocation = null;
-    remoteLocation = null;
-    remoteName = "Desconocido";
-
-    document.getElementById('chat-section').style.display = 'none';
-    document.getElementById('start-section').style.display = 'block';
-
-    addMessage(`⌛ Sistema: Esperando conexión...`);
-  } else {
-    alert("No hay ninguna conexión activa.");
   }
+
+  // Detener cámara si está activa
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+    document.getElementById('video').srcObject = null;
+    document.getElementById('video').style.display = 'none';
+  }
+
+  // Destruir Peer
+  if (peer) {
+    peer.destroy();
+    peer = null;
+  }
+
+  // Reset de estado
+  myLocation = null;
+  remoteLocation = null;
+  remoteName = "Desconocido";
+
+  // Volver a la pantalla de inicio
+  document.getElementById('chat-section').style.display = 'none';
+  document.getElementById('start-section').style.display = 'block';
+
+  addMessage(`⌛ Sistema: Esperando conexión...`);
 }
