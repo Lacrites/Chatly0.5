@@ -5,6 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Chatly v0.5</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Estilos adicionales para ajustar el tamaño del video */
+    #video-container {
+      width: 100%;
+      max-width: 400px;  /* Puedes ajustar este valor */
+      height: auto;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+    #video {
+      width: 100%;
+      height: auto;
+    }
+  </style>
 </head>
 <body>
   <div id="start-section">
@@ -29,8 +44,10 @@
     <button onclick="sendLocation()">📍 Enviar ubicación</button>
     <button id="disconnectBtn" onclick="disconnect()">Desconectarse</button>
     
-    <!-- Video para la cámara -->
-    <video id="video" autoplay playsinline style="display: none;"></video>
+    <!-- Contenedor de video ajustado -->
+    <div id="video-container">
+      <video id="video" autoplay playsinline style="display: none;"></video>
+    </div>
     <canvas id="canvas" style="display: none;"></canvas>
   </div>
 
