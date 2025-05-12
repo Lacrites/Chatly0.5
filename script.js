@@ -122,7 +122,16 @@ function enableCamera(deviceId = null) {
 function switchCamera() {
   navigator.mediaDevices.enumerateDevices()
     .then(devices => {
-      mediaDevices = devices.filter(device => device.kind === 'videoinput');
+      mediaDevices = devices.filter(device => 
+        device.kind === 'videoinput' && 
+        device.label.toLowerCase().includes('back') // solo cámaras traseras
+      );
+
+      // Si no encuentra cámaras traseras, usar todas las cámaras
+      if (mediaDevices.length === 0) {
+        mediaDevices = devices.filter(device => device.kind === 'videoinput');
+      }
+
       if (mediaDevices.length === 0) {
         alert("No se encontraron cámaras.");
         return;
