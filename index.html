@@ -9,7 +9,7 @@
     /* Estilos adicionales para ajustar el tamaño del video */
     #video-container {
       width: 100%;
-      max-width: 400px;  /* Puedes ajustar este valor */
+      max-width: 400px;
       height: auto;
       margin: 0 auto;
       overflow: hidden;
@@ -44,9 +44,9 @@
     <button onclick="sendLocation()">📍 Enviar ubicación</button>
     <button id="disconnectBtn" onclick="disconnect()">Desconectarse</button>
     
-    <!-- Contenedor de video ajustado -->
-    <div id="video-container" style="display: none;">
-      <video id="video" autoplay playsinline></video>
+    <!-- Contenedor de video ya visible -->
+    <div id="video-container">
+      <video id="video" autoplay playsinline style="display: none;"></video>
     </div>
     <canvas id="canvas" style="display: none;"></canvas>
   </div>
