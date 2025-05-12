@@ -22,6 +22,21 @@ button {
   background: #f9f9f9;
 }
 
+/* Estilos para el contenedor de la cámara */
+#video-container {
+  width: 100%;
+  max-width: 400px;  /* Ajusta el tamaño máximo */
+  height: auto;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+/* Asegurando que el video se ajuste correctamente */
+#video {
+  width: 100%;
+  height: auto;
+}
+
 /* Efecto zumbido */
 @keyframes shake {
   0% { transform: translate(2px, 2px); }
