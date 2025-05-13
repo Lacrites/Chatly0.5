@@ -1,3 +1,10 @@
+/* Aplicamos box-sizing a todos los elementos */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
   font-family: Arial, sans-serif;
   padding: 20px;
@@ -11,7 +18,6 @@ input {
   border: 1px solid #ccc;
   border-radius: 4px;
   width: calc(100% - 16px);  /* Asegura que el input ocupe el 100% del contenedor */
-  box-sizing: border-box;
 }
 
 button {
@@ -27,6 +33,10 @@ button {
 
 button:hover {
   background-color: #0056b3;  /* Color de fondo más oscuro al pasar el ratón */
+}
+
+button:active {
+  background-color: #003f7f;  /* Color de fondo aún más oscuro cuando se presiona el botón */
 }
 
 #messages {
@@ -88,5 +98,24 @@ button:hover {
 
   input, button {
     width: 100%;  /* Ocupa el 100% del ancho disponible en móviles */
+  }
+
+  button {
+    padding: 10px; /* Un poco más de padding para móviles para mejorar la usabilidad */
+  }
+}
+
+/* Mejora para dispositivos muy pequeños (pantallas menores a 320px) */
+@media (max-width: 320px) {
+  body {
+    padding: 5px;  /* Reduce aún más el padding */
+  }
+
+  #messages {
+    height: 120px;  /* Menor altura en pantallas aún más pequeñas */
+  }
+
+  button {
+    padding: 8px;  /* Ajusta el tamaño de los botones */
   }
 }
