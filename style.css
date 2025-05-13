@@ -39,6 +39,12 @@ button:active {
   background-color: #003f7f;  /* Color de fondo aún más oscuro cuando se presiona el botón */
 }
 
+#status-indicator {
+  font-size: 14px;
+  color: gray; /* Color predeterminado */
+  visibility: visible; /* Asegura que esté visible */
+}
+
 #messages {
   border: 1px solid #ccc;
   padding: 10px;
@@ -94,6 +100,12 @@ button:active {
 
   #video-container {
     max-width: 100%;  /* Asegura que el contenedor de video ocupe el 100% en móviles */
+  }
+
+  #status-indicator {
+    font-size: 12px;  /* Ajuste para pantallas más pequeñas */
+    padding: 4px 0;   /* Añadir espacio para que no se vea apretado */
+    white-space: nowrap; /* Evita que se rompa el texto */
   }
 
   input, button {
