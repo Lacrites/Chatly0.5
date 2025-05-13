@@ -70,9 +70,9 @@ function setupConnection() {
       checkDistance();
     }
     else if (data.type === "status") {
-  const statusText = data.value === "online" ? "🟢 En línea" : "🔴 Desconectado";
-  document.getElementById("status-indicator").textContent = statusText;
-}
+      const statusText = data.value === "online" ? "🟢 En línea" : "🔴 Desconectado";
+      document.getElementById("status-indicator").textContent = statusText;
+    }
   });
 
   conn.on('open', () => {
@@ -257,9 +257,7 @@ function haversineDistance(loc1, loc2) {
 function disconnect() {
   if (conn && conn.open) {
     conn.send({ type: "end", value: "⚠️ Sistema: El chat ha sido finalizado por el otro usuario." });
-   if (conn && conn.open) {
-  conn.send({ type: "status", value: "offline" });
-}
+    conn.send({ type: "status", value: "offline" }); // Se asegura de enviar "offline"
     conn.close();
     conn = null;
     addMessage(`⚠️ Sistema: Desconectado.`);
