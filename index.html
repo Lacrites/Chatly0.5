@@ -18,6 +18,20 @@
     #video {
       width: 100%;
       height: auto;
+      display: none; /* Lo escondemos por defecto */
+    }
+
+    /* Animación de zumbido */
+    .shake {
+      animation: shake 0.3s ease;
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      50% { transform: translateX(10px); }
+      75% { transform: translateX(-10px); }
+      100% { transform: translateX(0); }
     }
   </style>
 </head>
@@ -26,29 +40,29 @@
     <h1>Bienvenido a Chatly</h1>
     <input id="myId" placeholder="Tu ID" />
     <input id="myName" placeholder="Tu nombre" />
-    <button onclick="start()">Comenzar</button>
+    <button onclick="start()" aria-label="Iniciar conexión">Comenzar</button>
   </div>
 
   <div id="chat-section" style="display: none;">
     <p><strong>Tu ID:</strong> <span id="peer-id"></span></p>
     <input id="connectId" placeholder="ID del otro usuario" />
-    <button onclick="connect()">Conectar</button>
+    <button onclick="connect()" aria-label="Conectar con el otro usuario">Conectar</button>
     <p><strong>Estado del otro:</strong> <span id="status-indicator">⚪ Desconocido</span></p>
 
     <div id="messages" class="messages"></div>
     <input id="message" placeholder="Escribí tu mensaje" />
-    <button onclick="sendMessage()">Enviar</button>
-    <button onclick="sendBuzz()">🔔 Zumbido</button>
-    <button onclick="capturePhoto()">📷 Enviar foto</button>
-    <button onclick="enableCamera()">🎥 Encender Cámara</button>
-    <button onclick="disableCamera()">🎥Apagar Cámara</button>
-    <button onclick="switchCamera()">Cambiar Cámara</button>
-    <button onclick="sendLocation()">📍 Enviar ubicación</button>
-    <button id="disconnectBtn" onclick="disconnect()">Desconectarse</button>
+    <button onclick="sendMessage()" aria-label="Enviar mensaje">Enviar</button>
+    <button onclick="sendBuzz()" aria-label="Enviar zumbido">🔔 Zumbido</button>
+    <button onclick="capturePhoto()" aria-label="Tomar foto">📷 Enviar foto</button>
+    <button onclick="enableCamera()" aria-label="Encender cámara">🎥 Encender Cámara</button>
+    <button onclick="disableCamera()" aria-label="Apagar cámara">🎥 Apagar Cámara</button>
+    <button onclick="switchCamera()" aria-label="Cambiar cámara">Cambiar Cámara</button>
+    <button onclick="sendLocation()" aria-label="Enviar ubicación">📍 Enviar ubicación</button>
+    <button id="disconnectBtn" onclick="disconnect()" aria-label="Desconectar">Desconectarse</button>
     
     <!-- Contenedor de video ya visible -->
     <div id="video-container">
-      <video id="video" autoplay playsinline style="display: none;"></video>
+      <video id="video" autoplay playsinline></video>
     </div>
     <canvas id="canvas" style="display: none;"></canvas>
   </div>
