@@ -120,6 +120,20 @@ function enableCamera(deviceId = null) {
     });
 }
 
+function disableCamera() {
+  const video = document.getElementById('video');
+
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+    video.srcObject = null;
+    video.style.display = 'none';
+    addMessage("📷 Cámara apagada.");
+  } else {
+    addMessage("📷 La cámara ya está apagada.");
+  }
+}
+
 function switchCamera() {
   navigator.mediaDevices.enumerateDevices()
     .then(devices => {
