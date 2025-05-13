@@ -68,12 +68,13 @@ function setupConnection() {
       remoteLocation = data.value;
       addMessage(`📍 ${remoteName} envió su ubicación.`);
       checkDistance();
-    }
-    else if (data.type === "status") {
+    } else if (data.type === "status") {
       const statusText = data.value === "online" ? "🟢 En línea" : "🔴 Desconectado";
-      document.getElementById("status-indicator").textContent = statusText;
-    }
-  });
+    const statusIndicator = document.getElementById("status-indicator");
+    statusIndicator.textContent = statusText;
+    statusIndicator.style.color = data.value === "online" ? "green" : "red";
+  }
+});
 
   conn.on('open', () => {
     conn.send({ type: "status", value: "online" });
