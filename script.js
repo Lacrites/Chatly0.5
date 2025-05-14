@@ -17,6 +17,15 @@ function start() {
     return;
   }
 
+  // Solicita permiso para acceder a la cámara una vez al inicio
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => {
+      stream.getTracks().forEach(track => track.stop());
+    })
+    .catch(err => {
+      console.warn("No se pudo obtener permiso inicial para la cámara", err);
+    });
+
   peer = new Peer(myId);
 
   peer.on('open', id => {
@@ -70,11 +79,11 @@ function setupConnection() {
       checkDistance();
     } else if (data.type === "status") {
       const statusText = data.value === "online" ? "🟢 En línea" : "🔴 Desconectado";
-    const statusIndicator = document.getElementById("status-indicator");
-    statusIndicator.textContent = statusText;
-    statusIndicator.style.color = data.value === "online" ? "green" : "red";
-  }
-});
+      const statusIndicator = document.getElementById("status-indicator");
+      statusIndicator.textContent = statusText;
+      statusIndicator.style.color = data.value === "online" ? "green" : "red";
+    }
+  });
 
   conn.on('open', () => {
     conn.send({ type: "status", value: "online" });
@@ -103,7 +112,6 @@ function addMessage(msg) {
 function enableCamera(deviceId = null) {
   const video = document.getElementById('video');
 
-  // Detenemos todos los tracks previos si existen
   if (cameraStream) {
     cameraStream.getTracks().forEach(track => track.stop());
     cameraStream = null;
@@ -141,24 +149,28 @@ function disableCamera() {
 }
 
 function switchCamera() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+    alert("Tu navegador no soporta el cambio de cámara.");
+    return;
+  }
+
   navigator.mediaDevices.enumerateDevices()
     .then(devices => {
-      // Filtramos las cámaras (videoinput)
-      mediaDevices = devices.filter(device => device.kind === 'videoinput');
-      
-      if (mediaDevices.length === 0) {
+      const videoDevices = devices.filter(device => device.kind === 'videoinput');
+
+      if (videoDevices.length === 0) {
         alert("No se encontraron cámaras.");
         return;
       }
 
-      // Si ya estamos usando alguna cámara, determinamos cuál estamos usando
-      const currentDeviceId = cameraStream ? cameraStream.getTracks()[0].getSettings().deviceId : null;
+      if (!cameraStream) {
+        currentCameraIndex = 0;
+        enableCamera(videoDevices[currentCameraIndex].deviceId);
+        return;
+      }
 
-      // Determinamos el siguiente dispositivo de cámara
-      const nextDeviceId = mediaDevices.find(device => device.deviceId !== currentDeviceId)?.deviceId;
-      if (!nextDeviceId) return;
-
-      enableCamera(nextDeviceId);
+      currentCameraIndex = (currentCameraIndex + 1) % videoDevices.length;
+      enableCamera(videoDevices[currentCameraIndex].deviceId);
     })
     .catch(err => {
       console.error("Error al enumerar dispositivos", err);
@@ -245,7 +257,7 @@ function checkDistance() {
 
 function haversineDistance(loc1, loc2) {
   const toRad = deg => deg * Math.PI / 180;
-  const R = 6371; // km
+  const R = 6371;
   const dLat = toRad(loc2.lat - loc1.lat);
   const dLon = toRad(loc2.lon - loc1.lon);
   const a = Math.sin(dLat / 2) ** 2 +
@@ -258,7 +270,7 @@ function haversineDistance(loc1, loc2) {
 function disconnect() {
   if (conn && conn.open) {
     conn.send({ type: "end", value: "⚠️ Sistema: El chat ha sido finalizado por el otro usuario." });
-    conn.send({ type: "status", value: "offline" }); // Se asegura de enviar "offline"
+    conn.send({ type: "status", value: "offline" });
     conn.close();
     conn = null;
     addMessage(`⚠️ Sistema: Desconectado.`);
